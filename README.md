@@ -87,7 +87,7 @@ curl -F "file=@/path/to/sample.mp3" http://127.0.0.1:8000/process
 
 ## ✨ Contributing
 
-Contributions welcome — open issues or submit a pull request. Keep changes small and focused.
+Contributions welcome! Open issues or submit a pull request. Keep changes small and focused.
 
 ---
 
