@@ -67,21 +67,9 @@ def assign_speakers_to_segments(segments, labels, chunk_duration_sec=5):
     return "\n".join(speaker_lines)
 
 
-# =====================================================
-# MAIN PIPELINE FUNCTION (THIS IS WHAT FASTAPI IMPORTS)
-# =====================================================
+# main processing function 
 
 def process_meeting(audio_path):
-    """
-    Complete AI pipeline:
-    - Transcription
-    - Translation
-    - Summarization
-    - Speaker diarization
-
-    Returns results as a dictionary.
-    """
-
     print("Loading Whisper model...")
     whisper_model = whisper.load_model("base")
 
@@ -94,9 +82,7 @@ def process_meeting(audio_path):
     with open(f"{OUTPUT_DIR}/transcript_raw.txt", "w", encoding="utf-8") as f:
         f.write(transcript_text)
 
-    # -----------------------------
     # Translation
-    # -----------------------------
     print("Translating transcript...")
     translation_model_name = "Helsinki-NLP/opus-mt-mul-en"
     tokenizer = MarianTokenizer.from_pretrained(translation_model_name)
@@ -113,9 +99,7 @@ def process_meeting(audio_path):
     with open(f"{OUTPUT_DIR}/translated.txt", "w", encoding="utf-8") as f:
         f.write(translated_text)
 
-    # -----------------------------
     # Summarization
-    # -----------------------------
     print("Generating summary...")
     summarizer = pipeline(
         "summarization",
@@ -137,9 +121,8 @@ def process_meeting(audio_path):
     with open(f"{OUTPUT_DIR}/summary.txt", "w", encoding="utf-8") as f:
         f.write(summary)
 
-    # -----------------------------
+
     # Speaker Diarization
-    # -----------------------------
     print("Performing speaker diarization...")
     chunks = split_audio(audio_path, CHUNK_DURATION_MS)
     embeddings = extract_speaker_embeddings(chunks)
