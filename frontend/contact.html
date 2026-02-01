@@ -21,7 +21,7 @@
     <h2 class="text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl">Contact Us</h2>
     <p class="mt-2 text-lg/8 text-gray-400">Have a question or need support? Reach out to us!</p>
   </div>
-  <form action="#" method="POST" class="mx-auto mt-16 max-w-xl sm:mt-20">
+  <form id="contactForm" action="#" method="POST" class="mx-auto mt-16 max-w-xl sm:mt-20">
     <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
       <div>
         <label for="first-name" class="block text-sm/6 font-semibold text-white">First name</label>
@@ -77,5 +77,51 @@
     </div>
   </form>
 </div>
+
+<script>
+  (function() {
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const first = (document.getElementById('first-name')?.value || '').trim();
+      const last = (document.getElementById('last-name')?.value || '').trim();
+      const company = (document.getElementById('company')?.value || '').trim();
+      const email = (document.getElementById('email')?.value || '').trim();
+      const phone = (document.getElementById('phone-number')?.value || '').trim();
+      const message = (document.getElementById('message')?.value || '').trim();
+
+      if (!email || !message) {
+        alert('Please provide your email and a message before submitting.');
+        return;
+      }
+
+      const subject = encodeURIComponent(`Contact from ${first} ${last}`.trim() || 'Contact from website');
+
+      const bodyLines = [
+        `Name: ${first} ${last}`.trim(),
+        company ? `Company: ${company}` : '',
+        `Email: ${email}`,
+        phone ? `Phone: ${phone}` : '',
+        '',
+        message
+      ].filter(Boolean).join('\n');
+
+      const body = encodeURIComponent(bodyLines);
+
+      const mailto = `mailto:support@easynotes.com?subject=${subject}&body=${body}`;
+
+      /
+      window.location.href = mailto;
+
+     
+      alert('Submitted — your email client should open. If it does not, copy the message and send it to support@easynotes.com.');
+      form.reset();
+    });
+  })();
+</script>
+
 </body>
 </html>
