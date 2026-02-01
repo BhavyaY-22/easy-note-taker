@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Easy Note Taker</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: auto;
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+        }
+        section {
+            margin-top: 25px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Easy Note Taker</h1>
+
+<section>
+    <input type="file" id="audioFile" accept="audio/*">
+    <br>
+    <button onclick="processMeeting()">Process Meeting</button>
+    <p id="status"></p>
+</section>
+
+<section id="results" class="hidden">
+    <h3>Transcript</h3>
+    <textarea id="transcript"></textarea>
+    <button onclick="download('transcript')">Download Transcript</button>
+
+    <h3>Translated Transcript</h3>
+    <textarea id="translated"></textarea>
+    <button onclick="download('translated')">Download Translation</button>
+
+    <h3>Summary & Action Items</h3>
+    <textarea id="summary"></textarea>
+    <button onclick="download('summary')">Download Summary</button>
+
+    <h3>Speaker-labeled Transcript</h3>
+    <textarea id="speaker_transcript"></textarea>
+    <button onclick="download('speaker_transcript')">Download Speaker Transcript</button>
+</section>
+
+<script>
+async function processMeeting() {
+    const fileInput = document.getElementById("audioFile");
+    const status = document.getElementById("status");
+
+    if (!fileInput.files.length) {
+        alert("Please select an audio file.");
+        return;
+    }
+
+    status.innerText = "Processing meeting... please wait.";
+    document.getElementById("results").classList.add("hidden");
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    const response = await fetch("http://127.0.0.1:8000/process", {
+        method: "POST",
+        body: formData
+    });
+
+    if (!response.ok) {
+        status.innerText = `Error: ${response.status} ${response.statusText}`;
+        return;
+    }
+
+    const data = await response.json();
+
+    // Safely set fields only if elements exist (prevents JS errors if something is missing)
+    const setIfExists = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value || "";
+    };
+
+    setIfExists("transcript", data.transcript);
+    setIfExists("translated", data.translated);
+    setIfExists("summary", data.summary);
+    setIfExists("speaker_transcript", data.speaker_transcript);
+
+    document.getElementById("results").classList.remove("hidden");
+    status.innerText = "Processing complete.";
+}
+
+function download(type) {
+    const el = document.getElementById(type);
+    if (!el) {
+        alert('Nothing to download for ' + type);
+        return;
+    }
+    const text = el.value;
+    const blob = new Blob([text], { type: "text/plain" });
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+    link.download = `${type}.txt`;
+    link.click();
+}
+</script>
+
+</body>
+</html>

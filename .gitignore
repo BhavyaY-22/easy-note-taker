@@ -1,0 +1,8 @@
+# Ignore generated outputs and temporary files
+output/
+__pycache__/
+*.pyc
+temp_chunk_*.wav
+venv/
+.env
+.DS_Store
