@@ -19,7 +19,10 @@
   <main class="container mx-auto max-w-3xl px-4 py-12">
     <div id="upload" class="relative isolate overflow-hidden bg-gray-800 p-6 pt-12 pb-12 border border-gray-700 rounded-lg flex items-center justify-center">
       <div class="flex flex-col items-center gap-5 w-full max-w-xl">
-          <input type="file" id="audioFile" accept="audio/*" class="border border-gray-200 p-3 rounded w-full max-w-md bg-white">
+          <div class="w-full max-w-md">
+            <input type="file" id="audioFile" accept="audio/*" class="border border-gray-200 p-3 rounded w-full bg-white">
+            <p id="fileName" class="text-sm text-gray-300 mt-2"></p>
+          </div>
           <button onclick="processMeeting()" class="bg-cyan-500 font-semibold hover:bg-cyan-600 text-white px-4 py-2 rounded">Process Meeting</button>
           <p id="status" class="text-sm text-gray-300 mt-2"></p>
       </div>
@@ -93,6 +96,14 @@
       link.click();
       URL.revokeObjectURL(link.href);
       link.remove();
+    }
+    const audioFileInput = document.getElementById('audioFile');
+    if (audioFileInput) {
+      audioFileInput.addEventListener('change', (e) => {
+        const f = e.target.files[0];
+        const nameEl = document.getElementById('fileName');
+        if (nameEl) nameEl.textContent = f ? f.name : '';
+      });
     }
   </script>
 </body>
