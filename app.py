@@ -1,6 +1,7 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates
 from process_meeting import process_meeting
 import shutil
 import os
@@ -17,11 +18,27 @@ app.add_middleware(
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+templates = Jinja2Templates(directory="frontend")
 
-@app.get("/", response_class=HTMLResponse)
-def serve_frontend():
-    with open("frontend/index.html", "r", encoding="utf-8") as f:
-        return f.read()
+
+@app.get("/")
+def serve_frontend(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/upload.html")
+def serve_upload(request: Request):
+    return templates.TemplateResponse("upload.html", {"request": request})
+
+
+@app.get("/features.html")
+def serve_features(request: Request):
+    return templates.TemplateResponse("features.html", {"request": request})
+
+
+@app.get("/contact.html")
+def serve_contact(request: Request):
+    return templates.TemplateResponse("contact.html", {"request": request})
 
 
 @app.post("/process")

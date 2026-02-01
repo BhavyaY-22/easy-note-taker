@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Upload - Easy Note Taker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: Arial, sans-serif; }
+    .nav-link { transition: color 150ms ease, background-color 150ms ease; padding: 6px 8px; border-radius: 6px; }
+    .nav-link:hover, .nav-link:focus { background-color: rgba(255,255,255,0.06); color: cyan; }
+    textarea { width: 100%; }
+  </style>
+</head>
+<body class="bg-gray-900 text-white">
+{% include '_navbar.html' %}
+
+  <main class="container mx-auto max-w-3xl px-4 py-12">
+    <div id="upload" class="relative isolate overflow-hidden bg-gray-800 p-6 pt-12 pb-12 border border-gray-700 rounded-lg flex items-center justify-center">
+      <div class="flex flex-col items-center gap-5 w-full max-w-xl">
+          <input type="file" id="audioFile" accept="audio/*" class="border border-gray-200 p-3 rounded w-full max-w-md bg-white">
+          <button onclick="processMeeting()" class="bg-cyan-500 font-semibold hover:bg-cyan-600 text-white px-4 py-2 rounded">Process Meeting</button>
+          <p id="status" class="text-sm text-gray-300 mt-2"></p>
+      </div>
+    </div>
+
+    <section id="results" class="hidden bg-white p-4 rounded shadow mt-6 text-black">
+      <h3 class="text-lg font-medium">Transcript</h3>
+      <textarea id="transcript" class="w-full h-40 p-2 border rounded" placeholder="Transcript will appear here"></textarea>
+      <button onclick="download('transcript')" class="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded">Download Transcript</button>
+
+      <h3 class="text-lg font-medium mt-4">Translated Transcript</h3>
+      <textarea id="translated" class="w-full h-32 p-2 border rounded" placeholder="Translated transcript"></textarea>
+      <button onclick="download('translated')" class="mt-2 bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded">Download Translation</button>
+
+      <h3 class="text-lg font-medium mt-4">Summary & Action Items</h3>
+      <textarea id="summary" class="w-full h-32 p-2 border rounded" placeholder="Summary and action items"></textarea>
+      <button onclick="download('summary')" class="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded">Download Summary</button>
+
+      <h3 class="text-lg font-medium mt-4">Speaker-labeled Transcript</h3>
+      <textarea id="speaker_transcript" class="w-full h-32 p-2 border rounded" placeholder="Speaker labeled transcript"></textarea>
+      <button onclick="download('speaker_transcript')" class="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded">Download Speaker Transcript</button>
+    </section>
+  </main>
+
+  <script>
+    async function processMeeting() {
+      const fileInput = document.getElementById("audioFile");
+      const status = document.getElementById("status");
+
+      if (!fileInput.files.length) {
+        alert("Please select an audio file.");
+        return;
+      }
+
+      status.innerText = "Processing meeting... please wait.";
+      document.getElementById("results").classList.add("hidden");
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/process", { method: "POST", body: formData });
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+        const data = await response.json();
+
+        const setIfExists = (id, value) => {
+          const el = document.getElementById(id);
+          if (el) el.value = value || "";
+        };
+
+        setIfExists("transcript", data.transcript);
+        setIfExists("translated", data.translated);
+        setIfExists("summary", data.summary);
+        setIfExists("speaker_transcript", data.speaker_transcript);
+
+        document.getElementById("results").classList.remove("hidden");
+        status.innerText = "Processing complete.";
+      } catch (err) {
+        status.innerText = 'Error: ' + err.message;
+      }
+    }
+
+    function download(type) {
+      const el = document.getElementById(type);
+      if (!el || !el.value) { alert('Nothing to download for ' + type); return; }
+      const text = el.value;
+      const blob = new Blob([text], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${type}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      URL.revokeObjectURL(link.href);
+      link.remove();
+    }
+  </script>
+</body>
+</html>
