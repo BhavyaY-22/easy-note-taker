@@ -1,21 +1,25 @@
 FROM python:3.10-slim
 
-# System deps (audio + ML)
+# Install system + build dependencies
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     sox \
     libsndfile1 \
     git \
+    build-essential \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy only requirements first (better caching)
+# Copy requirements first (better caching)
 COPY requirements.txt .
 
-# Upgrade pip & install deps
+# Upgrade pip tooling
 RUN pip install --upgrade pip setuptools wheel
-RUN pip install -r requirements.txt
+
+# Install Python deps
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app code
 COPY . .
