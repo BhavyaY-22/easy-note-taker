@@ -63,7 +63,7 @@
       formData.append("file", fileInput.files[0]);
 
       try {
-  const API_URL = window.location.hostname === "localhost"
+        const API_URL = window.location.hostname === "localhost"
   ? "http://127.0.0.1:8000/process"
   : "/process";
 
@@ -71,28 +71,25 @@ const response = await fetch(API_URL, {
   method: "POST",
   body: formData
 });
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+        const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(`${response.status} ${response.statusText}`);
-  }
+        const setIfExists = (id, value) => {
+          const el = document.getElementById(id);
+          if (el) el.value = value || "";
+        };
 
-  const data = await response.json();
+        setIfExists("transcript", data.transcript);
+        setIfExists("translated", data.translated);
+        setIfExists("summary", data.summary);
+        setIfExists("speaker_transcript", data.speaker_transcript);
 
-  const setIfExists = (id, value) => {
-    const el = document.getElementById(id);
-    if (el) el.value = value || "";
-  };
-
-  setIfExists("transcript", data.transcript);
-  setIfExists("translated", data.translated);
-  setIfExists("summary", data.summary);
-  setIfExists("speaker", data.speaker_transcript);
-
-} catch (err) {
-  console.error("Upload failed:", err);
-  alert("Upload or processing failed.");
-}
-}
+        document.getElementById("results").classList.remove("hidden");
+        status.innerText = "Processing complete.";
+      } catch (err) {
+        status.innerText = 'Error: ' + err.message;
+      }
+    }
 
     function download(type) {
       const el = document.getElementById(type);
