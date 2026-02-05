@@ -2,7 +2,7 @@
 
 **Easy Note Taker** is a small FastAPI + static frontend project for uploading meeting audio, generating transcripts, translations, summaries, and downloading results.
 
-## Visit here for live demo: `https://easy-note-taker-app.vercel.app/`
+Visit here for live demo: `https://easy-note-taker-app.vercel.app/`
 
 ## 🚀 Quickstart
 
@@ -26,10 +26,10 @@ From the project root:
 
 ````bash
 docker-compose up --build
-
+````
 - Home: `http://localhost:3000`
 ---
-## Option 1: Run with Docker Compose
+## Option 2: Local python development
 
 ### Prerequisites
 - Python 3.10+ (Windows instructions below)
